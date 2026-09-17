@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>21 de Septiembre | Experiencia Premium 🌻✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Great+Vibes&family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent; /* Elimina recuadro azul al tocar en móviles */
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh; /* Soporte para alto exacto en móviles */
+      overflow: hidden;
+      background-color: #020200;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+    }
+
+    #webgl-container {
+      width: 100vw;
+      height: 100dvh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #explosion-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    /* Portada de Entrada Adaptativa */
+    .intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      z-index: 100;
+      background: radial-gradient(circle at center, rgba(30, 22, 0, 0.88) 0%, rgba(2, 2, 0, 0.98) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    .intro-card {
+      background: rgba(15, 12, 5, 0.88);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      padding: clamp(30px, 8vw, 50px) clamp(20px, 5vw, 35px);
+      border-radius: 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.25);
+      max-width: 440px;
+      width: 90%;
+    }
+
+    .intro-card h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 6vw, 2.3rem);
+      background: linear-gradient(45deg, #ffe600, #ffaa00, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .intro-card p {
+      color: #e0d5b5;
+      font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+      color: #000;
+      border: none;
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .start-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Banner Superior Móvil */
+    .header-banner {
+      position: absolute;
+      top: clamp(15px, 4vh, 25px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      text-align: center;
+      pointer-events: none;
+      width: 90%;
+      max-width: 650px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .typewriter-box {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.95rem, 4vw, 1.2rem);
+      color: #ffe600;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+      min-height: 30px;
+    }
+
+    /* Modal Carta Ajustado para Celular */
+    .card-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      z-index: 90;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .card-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card-modal {
+      width: 88%;
+      max-width: 400px;
+      background: linear-gradient(135deg, #fffdf0 0%, #ffe066 50%, #ffa800 100%);
+      border: 3px solid #ffffff;
+      border-radius: 28px;
+      padding: clamp(25px, 6vw, 35px) clamp(20px, 5vw, 30px);
+      text-align: center;
+      color: #382000;
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), 0 20px 40px rgba(0,0,0,0.8);
+      transform: scale(0.7) translateY(30px);
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .card-modal-overlay.active .card-modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .card-modal h2 {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(2.6rem, 10vw, 3.4rem);
+      color: #7a1200;
+      margin-bottom: 8px;
+    }
+
+    .card-modal p {
+      font-size: clamp(0.9rem, 3.8vw, 1.05rem);
+      line-height: 1.5;
+      color: #2b1700;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .card-modal .sign {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(2rem, 8vw, 2.5rem);
+      color: #8d0801;
+      margin-top: 10px;
+    }
+
+    .close-btn {
+      background: #111;
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-family: 'Cinzel', serif;
+      font-weight: bold;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
+      cursor: pointer;
+      margin-top: 15px;
+      touch-action: manipulation;
+    }
+
+    .close-btn:active {
+      background: #ffd700;
+      color: #000;
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+
+  <div id="webgl-container"></div>
+  <canvas id="explosion-canvas"></canvas>
+
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-card">
+      <h1>21 de Septiembre</h1>
+      <p>Un recorrido especial guardado exclusivamente para ti en este inicio de primavera...</p>
+      <button class="start-btn" onclick="iniciarRecorridoExtenso()">Iniciar Recorrido ✨</button>
+    </div>
+  </div>
+
+  <div class="header-banner" id="headerBanner">
+    <div class="typewriter-box" id="typewriter"></div>
+  </div>
+
+  <div class="card-modal-overlay" id="cardOverlay">
+    <div class="card-modal">
+      <h2>Mi Amor:</h2>
+      <p>Estas flores amarillas son un reflejo de tu luz y la alegría que traes a mi vida.</p>
+      <p>Gracias por hacer que cada día sea único. ¡Feliz 21 de Septiembre!</p>
+
+      <div class="sign">Te Amo Mucho 💛</div>
+
+      <button class="close-btn" onclick="cerrarCartaConExplosion()">Cerrar Carta 🌻</button>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=sweet-love-111578.mp3"></audio>
+
+  <script>
+    const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+    // Feedback táctil para celular
+    function vibrate(ms = 25) {
+      if ('vibrate' in navigator) navigator.vibrate(ms);
+    }
+
+    // --- 1. GENERADOR DE TEXTURA VECTORIAL (Ligero para móviles) ---
+    function generateSunflowerCanvas() {
+      const canvas = document.createElement('canvas');
+      const size = isMobile ? 96 : 128; // Optimizado según dispositivo
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const cx = size / 2, cy = size / 2;
+
+      const petals = 16;
+      for (let i = 0; i < petals; i++) {
+        const angle = (i * Math.PI * 2) / petals;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        
+        ctx.beginPath();
+        ctx.ellipse(0, -size * 0.3, size * 0.08, size * 0.2, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffcc00';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(0, -size * 0.28, size * 0.05, size * 0.14, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffee00';
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.16, 0, Math.PI * 2);
+      const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, size * 0.16);
+      grad.addColorStop(0, '#5a2e00');
+      grad.addColorStop(1, '#241000');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      return canvas;
+    }
+
+    const sunflowerImgCanvas = generateSunflowerCanvas();
+
+    // --- 2. CANVAS EXPLOSIÓN FLUIDO ---
+    const expCanvas = document.getElementById('explosion-canvas');
+    const expCtx = expCanvas.getContext('2d');
+
+    function resizeExpCanvas() {
+      expCanvas.width = window.innerWidth;
+      expCanvas.height = window.innerHeight;
+    }
+    resizeExpCanvas();
+    window.addEventListener('resize', resizeExpCanvas);
+
+    let activeParticles = [];
+
+    function dispararFlores() {
+      vibrate(50);
+      activeParticles = [];
+      const totalFlores = isMobile ? 80 : 130; // Ajuste para mantener rendimiento en móviles
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      for (let i = 0; i < totalFlores; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = isMobile ? (8 + Math.random() * 18) : (12 + Math.random() * 26);
+
+        activeParticles.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: isMobile ? (40 + Math.random() * 50) : (50 + Math.random() * 75),
+          rotation: Math.random() * Math.PI * 2,
+          vRot: (Math.random() - 0.5) * 0.25,
+          opacity: 1,
+          gravity: 0.2 + Math.random() * 0.18
+        });
+      }
+
+      animateExplosion();
+    }
+
+    function animateExplosion() {
+      expCtx.clearRect(0, 0, expCanvas.width, expCanvas.height);
+
+      for (let i = activeParticles.length - 1; i >= 0; i--) {
+        const p = activeParticles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.vRot;
+        p.opacity -= 0.012;
+
+        if (p.opacity <= 0) {
+          activeParticles.splice(i, 1);
+          continue;
+        }
+
+        expCtx.save();
+        expCtx.globalAlpha = Math.max(0, p.opacity);
+        expCtx.translate(p.x, p.y);
+        expCtx.rotate(p.rotation);
+        expCtx.drawImage(sunflowerImgCanvas, -p.size / 2, -p.size / 2, p.size, p.size);
+        expCtx.restore();
+      }
+
+      if (activeParticles.length > 0) {
+        requestAnimationFrame(animateExplosion);
+      }
+    }
+
+    // --- 3. UNIVERSO 3D OPTIMIZADO PARA MÓVIL ---
+    const container = document.getElementById('webgl-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x020200, 0.005);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 180, 320);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limita pixeles excesivos en móviles
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.rotateSpeed = isMobile ? 0.6 : 1.0; // Control de giro más suave en táctil
+    controls.maxDistance = 160;
+    controls.minDistance = 5;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
+
+    const ambientLight = new THREE.AmbientLight(0xfffae6, 1.5);
+    scene.add(ambientLight);
+
+    const centerLight = new THREE.PointLight(0xffd700, 4, 120);
+    centerLight.position.set(0, 5, 0);
+    scene.add(centerLight);
+
+    const sunflowerTexture3D = new THREE.CanvasTexture(sunflowerImgCanvas);
+
+    const orbitGroup = new THREE.Group();
+    scene.add(orbitGroup);
+
+    const interactiveBouquets = [];
+    const totalBouquets = isMobile ? 140 : 250; // Cantidad equilibrada para móvil
+
+    for (let i = 0; i < totalBouquets; i++) {
+      const spriteMat = new THREE.SpriteMaterial({ 
+        map: sunflowerTexture3D, 
+        transparent: true,
+        opacity: 0.95
+      });
+      const bouquetSprite = new THREE.Sprite(spriteMat);
+
+      const radius = 15 + Math.random() * 100;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = (Math.random() - 0.5) * Math.PI;
+
+      bouquetSprite.position.set(
+        radius * Math.cos(phi) * Math.cos(theta),
+        radius * Math.sin(phi),
+        radius * Math.cos(phi) * Math.sin(theta)
+      );
+
+      const baseScale = isMobile ? (7 + Math.random() * 5) : (6 + Math.random() * 6);
+      bouquetSprite.scale.set(baseScale, baseScale, 1);
+
+      bouquetSprite.userData = { 
+        baseScale: baseScale
+      };
+
+      orbitGroup.add(bouquetSprite);
+      interactiveBouquets.push(bouquetSprite);
+    }
+
+    // Polvo Estelar
+    const particleCount = isMobile ? 2500 : 5000;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+      pPos[i*3] = (Math.random() - 0.5) * 200;
+      pPos[i*3+1] = (Math.random() - 0.5) * 200;
+      pPos[i*3+2] = (Math.random() - 0.5) * 200;
+    }
+
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const pMat = new THREE.PointsMaterial({
+      size: isMobile ? 0.4 : 0.3,
+      color: 0xffea00,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending
+    });
+    const galaxyParticles = new THREE.Points(pGeo, pMat);
+    scene.add(galaxyParticles);
+
+    // Corazón Central
+    const heartParticles = isMobile ? 1000 : 1500;
+    const hGeo = new THREE.BufferGeometry();
+    const hPos = new Float32Array(heartParticles * 3);
+
+    for(let i = 0; i < heartParticles; i++) {
+      const t = Math.PI * 2 * Math.random();
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+      const z = (Math.random() - 0.5) * 5;
+
+      const scale = 0.3;
+      hPos[i*3] = x * scale;
+      hPos[i*3+1] = y * scale + 3;
+      hPos[i*3+2] = z * scale;
+    }
+
+    hGeo.setAttribute('position', new THREE.BufferAttribute(hPos, 3));
+    const hMat = new THREE.PointsMaterial({
+      size: 0.28,
+      color: 0xffea00,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending
+    });
+    const heartMesh = new THREE.Points(hGeo, hMat);
+    scene.add(heartMesh);
+
+    // --- 4. FUNCIONES Y TÁCTIL ---
+    const textMessage = "Un universo entero de girasoles para iluminar tu día 🌼✨";
+
+    function iniciarRecorridoExtenso() {
+      vibrate(30);
+      const audio = document.getElementById('bgMusic');
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+
+      const intro = document.getElementById('introOverlay');
+      intro.style.opacity = '0';
+      intro.style.transform = 'scale(1.05)';
+
+      setTimeout(() => {
+        intro.style.display = 'none';
+        document.getElementById('headerBanner').style.opacity = '1';
+        typeWriterEffect();
+      }, 1200);
+
+      const tl = gsap.timeline({
+        onUpdate: () => controls.update(),
+        onComplete: () => {
+          setTimeout(abrirCarta, 1000);
+        }
+      });
+
+      tl.to(camera.position, {
+        x: 70,
+        y: 40,
+        z: 120,
+        duration: 2.2,
+        ease: "sine.inOut"
+      })
+      .to(camera.position, {
+        x: -35,
+        y: 18,
+        z: 55,
+        duration: 2.0,
+        ease: "power1.inOut"
+      })
+      .to(camera.position, {
+        x: 0,
+        y: 8,
+        z: 28,
+        duration: 1.8,
+        ease: "power2.out"
+      });
+    }
+
+    function typeWriterEffect() {
+      const el = document.getElementById('typewriter');
+      let i = 0;
+      function type() {
+        if (i < textMessage.length) {
+          el.innerHTML += textMessage.charAt(i);
+          i++;
+          setTimeout(type, 40);
+        }
+      }
+      type();
+    }
+
+    function abrirCarta() {
+      vibrate(20);
+      document.getElementById('cardOverlay').classList.add('active');
+    }
+
+    function cerrarCartaConExplosion() {
+      document.getElementById('cardOverlay').classList.remove('active');
+      dispararFlores();
+    }
+
+    // Detección táctil precisa para móviles
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function handlePointer(e) {
+      if (e.target.closest('.card-modal-overlay') || e.target.closest('.intro-overlay')) return;
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      mouse.x = (clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(interactiveBouquets);
+
+      if (intersects.length > 0) {
+        vibrate(15);
+        const hitFlower = intersects[0].object;
+        
+        gsap.to(hitFlower.scale, {
+          x: hitFlower.userData.baseScale * 2.0,
+          y: hitFlower.userData.baseScale * 2.0,
+          duration: 0.25,
+          yoyo: true,
+          repeat: 1,
+          ease: "power2.out"
+        });
+
+        if (intersects[0].distance < 60) {
+          abrirCarta();
+        }
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointer);
+
+    // Inclinación suave con el movimiento en pantalla
+    window.addEventListener('pointermove', (e) => {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const targetX = (clientX / window.innerWidth - 0.5) * 0.15;
+      const targetY = (clientY / window.innerHeight - 0.5) * 0.15;
+
+      gsap.to(orbitGroup.rotation, {
+        x: targetY,
+        z: targetX,
+        duration: 1.0,
+        ease: "power1.out"
+      });
+    });
+
+    // --- 5. BUCLE PRINCIPAL ---
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      galaxyParticles.rotation.y = elapsedTime * 0.015;
+      orbitGroup.rotation.y += 0.002;
+
+      const pulse = 1 + Math.sin(elapsedTime * 3) * 0.06;
+      heartMesh.scale.set(pulse, pulse, pulse);
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
